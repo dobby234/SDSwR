@@ -1,0 +1,287 @@
+---
+title: "Spatial Data Science with R - Project Proposal"
+author: "Sruthi Choondal Mohandas"
+format: html
+toc: true
+number-sections: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+# Project Proposal
+
+## Package Name
+
+**floodUncertR**
+
+**Tagline**
+
+*A reproducible R package for terrain-based flood susceptibility analysis and uncertainty visualization.*
+
+## Package Theme
+
+`floodUncertR` is a software-focused R package that provides a reproducible workflow for terrain-based flood susceptibility analysis.
+
+The package automatically retrieves a Digital Elevation Model (DEM) for a user-defined study area, derives terrain characteristics from the DEM, computes a simple terrain-based flood susceptibility index, and visualizes uncertainty using the **Vizumap** package.
+
+Unlike operational flood forecasting software, this package focuses on reproducible spatial analysis and uncertainty communication. The package is intended as a lightweight toolkit for educational purposes and exploratory spatial analysis.
+
+The package will be developed following the workflow described in **R Packages (2nd Edition)** using the `devtools` and `usethis` packages.
+
+## Target Users
+
+The package is intended for:
+
+- GIS analysts
+- Spatial data scientists
+- Environmental scientists
+- Students learning spatial data analysis in R
+- Researchers interested in terrain-based flood susceptibility analysis
+
+# Software Design
+
+## S3 Class
+
+The package introduces an S3 class called **`flood_project`**, which stores all outputs generated throughout the workflow.
+
+The object contains:
+
+- Study area (`sf` object or bounding box)
+- Digital Elevation Model (DEM)
+- Terrain metrics
+  - Slope
+  - Aspect
+  - Flow direction
+- Flood susceptibility index
+- Uncertainty layer
+
+Each analysis function accepts a `flood_project` object, updates it, and returns the modified object.
+
+# Workflow Overview
+
+The package follows the workflow below.
+
+1.  Define a study area by specifying a bounding box or an `sf` polygon.
+2.  Retrieve a DEM using `get_dem()`.
+3.  Create a `flood_project` object using `new_flood_project()`.
+4.  Derive terrain metrics using `derive_terrain_metrics()`.
+5.  Compute a terrain-based flood susceptibility index using `compute_flood_index()`.
+6.  Visualize flood susceptibility and uncertainty using `plot_uncertainty()`.
+
+# Planned Package Structure
+
+``` text
+floodUncertR/
+
+DESCRIPTION
+NAMESPACE
+LICENSE
+README.Rmd
+README.md
+floodUncertR.Rproj
+
+R/
+    classes.R
+    get_dem.R
+    derive_terrain_metrics.R
+    compute_flood_index.R
+    plot_uncertainty.R
+
+man/
+
+tests/
+    testthat/
+
+vignettes/
+    floodUncertR.Rmd
+```
+
+# Package Development Workflow
+
+The package will be developed following the recommended workflow from **R Packages (2nd Edition)**.
+
+``` r
+library(devtools)
+library(usethis)
+
+create_package("floodUncertR")
+
+use_mit_license("Sruthi Choondal Mohandas")
+
+use_r("classes")
+use_r("get_dem")
+use_r("derive_terrain_metrics")
+use_r("compute_flood_index")
+use_r("plot_uncertainty")
+
+use_testthat()
+
+use_vignette("floodUncertR")
+
+document()
+
+check()
+```
+
+The objective is to produce an installable package that passes package checks without errors.
+
+# Required Packages
+
+| Package  | Purpose                                |
+|----------|----------------------------------------|
+| terra    | Raster processing and terrain analysis |
+| sf       | Handling study area geometries         |
+| elevatr  | Downloading Digital Elevation Models   |
+| Vizumap  | Uncertainty visualization              |
+| devtools | Package development                    |
+| usethis  | Package setup                          |
+| roxygen2 | Documentation generation               |
+| testthat | Unit testing                           |
+
+# Planned Functions
+
+## get_dem()
+
+Retrieves a Digital Elevation Model for a user-defined study area.
+
+**Input**
+
+- Bounding box
+- `sf` polygon
+
+**Output**
+
+- `SpatRaster`
+
+The function will internally use the `elevatr` package to automatically download the DEM.
+
+------------------------------------------------------------------------
+
+## new_flood_project()
+
+Creates a `flood_project` object.
+
+**Input**
+
+- Study area
+- DEM
+
+**Output**
+
+- `flood_project`
+
+------------------------------------------------------------------------
+
+## derive_terrain_metrics()
+
+Derives terrain variables from the DEM.
+
+Computed outputs include:
+
+- Slope
+- Aspect
+- Flow direction
+
+Returns the updated `flood_project`.
+
+------------------------------------------------------------------------
+
+## compute_flood_index()
+
+Computes a simple terrain-based flood susceptibility index from the terrain metrics.
+
+Returns the updated `flood_project`.
+
+------------------------------------------------------------------------
+
+## plot_uncertainty()
+
+Uses the `Vizumap` package to visualize flood susceptibility together with uncertainty.
+
+Returns a visualization object.
+
+# Planned S3 Methods
+
+The package implements one S3 class:
+
+``` text
+flood_project
+```
+
+The following methods will be implemented.
+
+## print.flood_project()
+
+Displays
+
+- Study area
+- DEM availability
+- Terrain metrics availability
+- Flood index availability
+- Uncertainty availability
+
+------------------------------------------------------------------------
+
+## summary.flood_project()
+
+Displays
+
+- DEM dimensions
+- Elevation statistics
+- Computed terrain metrics
+- Flood index status
+- Uncertainty status
+
+# Planned Vignette
+
+The package vignette will demonstrate the complete workflow.
+
+``` r
+library(floodUncertR)
+library(sf)
+
+bbox <- st_bbox(
+  c(
+    xmin = 7.60,
+    ymin = 51.94,
+    xmax = 7.62,
+    ymax = 51.96
+  ),
+  crs = 4326
+)
+
+dem <- get_dem(bbox)
+
+project <- new_flood_project(
+  study_area = bbox,
+  dem = dem
+)
+
+print(project)
+
+summary(project)
+
+project <- derive_terrain_metrics(project)
+
+project <- compute_flood_index(project)
+
+plot_uncertainty(project)
+```
+
+# Reproducibility
+
+The package is designed to be fully reproducible.
+
+- No absolute file paths are used.
+- The DEM is automatically downloaded for any user-defined study area.
+- All dependencies are explicitly declared in the `DESCRIPTION` file.
+- Documentation is generated using `roxygen2`.
+- Package functionality is tested using `testthat`.
+- The package follows the recommended development workflow from **R Packages (2nd Edition)**.
+- A self-contained vignette demonstrates the complete workflow.
+
+# Future Extensions
+
+Future versions of **floodUncertR** may incorporate additional environmental variables such as rainfall, land cover, river proximity, or hydrological indices. The current implementation intentionally focuses on terrain-derived flood susceptibility and uncertainty visualization to maintain a manageable scope while satisfying the objectives of the assignment.
