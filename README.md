@@ -101,5 +101,5 @@ devtools::check()      # full R CMD check
 
 ## License
 
-MIT Â© Sruthi Choondal Mohandas
+MIT © Sruthi Choondal Mohandas
 
